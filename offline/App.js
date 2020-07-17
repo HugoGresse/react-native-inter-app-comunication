@@ -6,6 +6,7 @@ import {
   ScrollView,
   View,
   Text,
+    Image,
   StatusBar, Linking,
 } from 'react-native';
 
@@ -104,6 +105,8 @@ const App: () => React$Node = () => {
             <Text style={styles.data}>
               {JSON.stringify(inputData, 0, 4)}
             </Text>
+
+            {inputData.data && <Image source={inputData.data.photos[0]}/>}
 
           </View>
         </ScrollView>
