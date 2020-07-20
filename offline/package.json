@@ -12,7 +12,8 @@
   "dependencies": {
     "react": "16.13.1",
     "react-native": "0.63.1",
-    "react-native-base64": "0.0.2"
+    "react-native-base64": "0.0.2",
+    "react-native-permissions": "^2.1.5"
   },
   "devDependencies": {
     "@babel/core": "^7.8.4",

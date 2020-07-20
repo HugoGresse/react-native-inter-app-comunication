@@ -12,6 +12,8 @@ import ImagePicker from 'react-native-image-crop-picker';
 import base64 from 'react-native-base64';
 
 import { Colors } from 'react-native/Libraries/NewAppScreen';
+import ImageResizer from "react-native-image-resizer";
+import { getExternalStorageDir } from './utils';
 
 const App: () => React$Node = () => {
 
@@ -70,16 +72,32 @@ const App: () => React$Node = () => {
             width: 300,
             height: 400,
             cropping: true,
+        }).then(async image => {
+            console.log("Image received from picker", image);
+
+            const externalDirPath = await getExternalStorageDir()
+
+            console.log("saving to ", externalDirPath, image.path);
+
+            return ImageResizer.createResizedImage(
+                image.path,
+                900,
+                900,
+                "JPEG",
+                72,
+                0,
+                externalDirPath
+            );
         }).then(image => {
+            console.log("Image received after resize", image);
+
             setPhotos([{
-                uri: image.path,
+                uri: image.uri,
                 width: image.width,
                 height: image.height,
-                mime: image.mime,
+                mime:  "image/jpeg",
             }]);
-
-            console.log(image.path);
-        });
+        } );
     };
 
     const sendPhoto = () => {
@@ -121,7 +139,7 @@ const App: () => React$Node = () => {
 
                         {photos.length === 0 && <Text>NO PHOTOS</Text>}
                         {
-                            photos.length > 0 && <Image source={photos[0]}/>
+                            photos.length > 0 && <Image source={photos[0]} style={styles.previewImage}/>
                         }
 
                         <Text style={styles.data}>
@@ -161,6 +179,10 @@ const styles = StyleSheet.create({
     },
     data: {
         backgroundColor: '#EEE',
+    },
+    previewImage: {
+        maxWidth: 300,
+        height: 300
     },
 });
 
