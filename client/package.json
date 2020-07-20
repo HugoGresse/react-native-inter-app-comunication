@@ -15,7 +15,8 @@
     "react-native-base64": "0.0.2",
     "react-native-fs": "^2.16.6",
     "react-native-image-crop-picker": "^0.32.2",
-    "react-native-image-resizer": "^1.2.3"
+    "react-native-image-resizer": "^1.2.3",
+    "react-native-permissions": "^2.1.5"
   },
   "devDependencies": {
     "@babel/core": "^7.8.4",

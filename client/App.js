@@ -14,6 +14,8 @@ import base64 from 'react-native-base64';
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import ImageResizer from "react-native-image-resizer";
 import { getExternalStorageDir } from './utils';
+import { PERMISSIONS } from 'react-native-permissions';
+import { requireExtStoragePermissionIfNeeded } from './permissions';
 
 const App: () => React$Node = () => {
 
@@ -68,36 +70,54 @@ const App: () => React$Node = () => {
     }, []);
 
     const takePhoto = async () => {
-        ImagePicker.openPicker({
-            width: 300,
-            height: 400,
-            cropping: true,
-        }).then(async image => {
-            console.log("Image received from picker", image);
+        await requireExtStoragePermissionIfNeeded(PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE)
+            .then(granted => {
+                if(granted) {
+                    return requireExtStoragePermissionIfNeeded(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE)
+                }
+                throw new Error('NO PERMISSIONS')
+            })
+            .then(isPermissionGranted => {
+                if(isPermissionGranted) {
+                    return true
+                }
+                throw new Error('NO PERMISSIONS')
+            })
+            .then(() => {
+                return ImagePicker.openPicker({
+                    width: 300,
+                    height: 400,
+                    cropping: true,
+                })
+            })
+            .then(async image => {
+                console.log("Image received from picker", image);
 
-            const externalDirPath = await getExternalStorageDir()
+                const externalDirPath = await getExternalStorageDir()
 
-            console.log("saving to ", externalDirPath, image.path);
+                console.log("saving to ", externalDirPath, image.path);
 
-            return ImageResizer.createResizedImage(
-                image.path,
-                900,
-                900,
-                "JPEG",
-                72,
-                0,
-                externalDirPath
-            );
-        }).then(image => {
-            console.log("Image received after resize", image);
+                return ImageResizer.createResizedImage(
+                    image.path,
+                    900,
+                    900,
+                    "JPEG",
+                    72,
+                    0,
+                    externalDirPath
+                );
+            })
+            .then(image => {
+                console.log("Image received after resize", image);
 
-            setPhotos([{
-                uri: image.uri,
-                width: image.width,
-                height: image.height,
-                mime:  "image/jpeg",
-            }]);
-        } );
+                setPhotos([{
+                    uri: image.uri,
+                    width: image.width,
+                    height: image.height,
+                    mime:  "image/jpeg",
+                }]);
+            } );
+
     };
 
     const sendPhoto = () => {
